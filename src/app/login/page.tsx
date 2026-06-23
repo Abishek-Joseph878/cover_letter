@@ -69,6 +69,101 @@ function LoginForm() {
   };
 
   return (
+    <div className={styles.card}>
+      <div className={styles.tabs}>
+        <button
+          className={`${styles.tab} ${isLogin ? styles.activeTab : ""}`}
+          onClick={() => setIsLogin(true)}
+          type="button"
+        >
+          Log In
+        </button>
+        <button
+          className={`${styles.tab} ${!isLogin ? styles.activeTab : ""}`}
+          onClick={() => setIsLogin(false)}
+          type="button"
+        >
+          Sign Up
+        </button>
+      </div>
+
+      <h2 className={styles.title}>
+        {isLogin ? "Welcome Back" : "Create Account"}
+      </h2>
+      <p className={styles.subtitle}>
+        {isLogin
+          ? "Access your saved cover letters and edit drafts."
+          : "Sign up to start tailoring your job application letters."}
+      </p>
+
+      <form onSubmit={handleSubmit} className={styles.form}>
+        {(error || validationError) && (
+          <div className={styles.errorMessage}>
+            {validationError || error}
+          </div>
+        )}
+
+        {!isLogin && (
+          <div className={styles.inputGroup}>
+            <label htmlFor="name">Full Name</label>
+            <input
+              id="name"
+              type="text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required={!isLogin}
+              disabled={loading}
+            />
+          </div>
+        )}
+
+        <div className={styles.inputGroup}>
+          <label htmlFor="email">Email Address</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="john@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        <button
+          type="submit"
+          className={styles.submitButton}
+          disabled={loading}
+        >
+          {loading ? (
+            <span className={styles.loader}></span>
+          ) : isLogin ? (
+            "Log In"
+          ) : (
+            "Register & Start"
+          )}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <div className={styles.container}>
       <header className={styles.header}>
         <Link href="/" className={styles.logo}>
@@ -77,113 +172,14 @@ function LoginForm() {
       </header>
 
       <main className={styles.main}>
-        <div className={styles.card}>
-          <div className={styles.tabs}>
-            <button
-              className={`${styles.tab} ${isLogin ? styles.activeTab : ""}`}
-              onClick={() => setIsLogin(true)}
-              type="button"
-            >
-              Log In
-            </button>
-            <button
-              className={`${styles.tab} ${!isLogin ? styles.activeTab : ""}`}
-              onClick={() => setIsLogin(false)}
-              type="button"
-            >
-              Sign Up
-            </button>
-          </div>
-
-          <h2 className={styles.title}>
-            {isLogin ? "Welcome Back" : "Create Account"}
-          </h2>
-          <p className={styles.subtitle}>
-            {isLogin
-              ? "Access your saved cover letters and edit drafts."
-              : "Sign up to start tailoring your job application letters."}
-          </p>
-
-          <form onSubmit={handleSubmit} className={styles.form}>
-            {(error || validationError) && (
-              <div className={styles.errorMessage}>
-                {validationError || error}
-              </div>
-            )}
-
-            {!isLogin && (
-              <div className={styles.inputGroup}>
-                <label htmlFor="name">Full Name</label>
-                <input
-                  id="name"
-                  type="text"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required={!isLogin}
-                  disabled={loading}
-                />
-              </div>
-            )}
-
-            <div className={styles.inputGroup}>
-              <label htmlFor="email">Email Address</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="john@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className={styles.submitButton}
-              disabled={loading}
-            >
-              {loading ? (
-                <span className={styles.loader}></span>
-              ) : isLogin ? (
-                "Log In"
-              ) : (
-                "Register & Start"
-              )}
-            </button>
-          </form>
-        </div>
+        <Suspense fallback={<div className={styles.card} style={{ textAlign: "center", color: "#94a3b8" }}>Loading...</div>}>
+          <LoginForm />
+        </Suspense>
       </main>
 
       <footer className={styles.footer}>
         <p>© {new Date().getFullYear()} Cover Letter AI. All rights reserved.</p>
       </footer>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#080811", color: "#ffffff" }}>
-        Loading...
-      </div>
-    }>
-      <LoginForm />
-    </Suspense>
   );
 }
