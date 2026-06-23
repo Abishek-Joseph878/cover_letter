@@ -6,7 +6,7 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "super_secret_jwt_key_change_me_in_production"
 );
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   let token = request.cookies.get("token")?.value;
   if (!token) {
