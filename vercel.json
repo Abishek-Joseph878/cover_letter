@@ -3,5 +3,11 @@
   "framework": "nextjs",
   "regions": [
     "iad1"
-  ]
+  ],
+  "functions": {
+    "src/app/api/**/*": {
+      "maxDuration": 30,
+      "memory": 1024
+    }
+  }
 }
