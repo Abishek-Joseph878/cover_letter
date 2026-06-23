@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import connectDB from "@/lib/mongodb";
 import CoverLetter from "@/models/CoverLetter";
 import { verifyJWT } from "@/lib/auth";
@@ -7,7 +7,16 @@ import { verifyJWT } from "@/lib/auth";
 // Helper to authenticate requests and get payload
 async function getAuthSession() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  let token = cookieStore.get("token")?.value;
+
+  if (!token) {
+    const headersList = await headers();
+    const authHeader = headersList.get("authorization");
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.substring(7);
+    }
+  }
+
   if (!token) return null;
   return await verifyJWT(token);
 }
