@@ -1,15 +1,36 @@
+"use client";
+
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 import styles from "./page.module.css";
 
 export default function Home() {
+  const { user, logout, loading } = useAuth();
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <div className={styles.logo}>
+        <Link href="/" className={styles.logo}>
           <span>📝</span> Cover Letter AI
-        </div>
+        </Link>
         <nav className={styles.nav}>
-          <a href="#features" className={styles.navLink}>Features</a>
-          <a href="https://nextjs.org/docs" target="_blank" rel="noopener noreferrer" className={styles.navLink}>Docs</a>
+          <a href="#features" className={styles.navLink}>
+            Features
+          </a>
+          {user ? (
+            <>
+              <Link href="/dashboard" className={styles.navLink}>
+                Workspace
+              </Link>
+              <button onClick={logout} className={styles.navLink} style={{ background: "transparent", border: "none", cursor: "pointer", font: "inherit" }}>
+                Log Out ({user.name})
+              </button>
+            </>
+          ) : (
+            <Link href="/login" className={styles.navLink}>
+              Log In
+            </Link>
+          )}
         </nav>
       </header>
 
@@ -23,11 +44,24 @@ export default function Home() {
             Instantly match your resume with any job description. Generate ATS-optimized, high-conversion cover letters in seconds using advanced AI.
           </p>
           <div className={styles.actions}>
-            <button className={styles.primaryButton}>
-              Create Your Cover Letter
-              <span className={styles.arrow}>→</span>
-            </button>
-            <button className={styles.secondaryButton}>View Templates</button>
+            {loading ? (
+              <button className={styles.primaryButton} disabled>
+                Loading...
+              </button>
+            ) : user ? (
+              <Link href="/dashboard" className={styles.primaryButton}>
+                Go to Workspace
+                <span className={styles.arrow}>→</span>
+              </Link>
+            ) : (
+              <Link href="/login" className={styles.primaryButton}>
+                Create Your Cover Letter
+                <span className={styles.arrow}>→</span>
+              </Link>
+            )}
+            <a href="#features" className={styles.secondaryButton}>
+              Learn More
+            </a>
           </div>
         </section>
 

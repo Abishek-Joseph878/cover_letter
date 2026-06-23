@@ -1,15 +1,33 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import connectDB from "@/lib/mongodb";
 import CoverLetter from "@/models/CoverLetter";
+import { verifyJWT } from "@/lib/auth";
+
+// Helper to authenticate requests and get payload
+async function getAuthSession() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) return null;
+  return await verifyJWT(token);
+}
 
 /**
  * GET /api/cover-letters
- * Retrieves all cover letters from the database, sorted by creation date.
+ * Retrieves cover letters belonging to the logged-in user.
  */
 export async function GET() {
   try {
+    const session = await getAuthSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     await connectDB();
-    const coverLetters = await CoverLetter.find().sort({ createdAt: -1 });
+    const coverLetters = await CoverLetter.find({ userId: session.userId }).sort({
+      createdAt: -1,
+    });
+
     return NextResponse.json({ success: true, data: coverLetters }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
@@ -21,10 +39,15 @@ export async function GET() {
 
 /**
  * POST /api/cover-letters
- * Creates a new cover letter in the database.
+ * Creates a new cover letter associated with the logged-in user.
  */
 export async function POST(request: Request) {
   try {
+    const session = await getAuthSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     await connectDB();
     const body = await request.json();
 
@@ -39,7 +62,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const newCoverLetter = await CoverLetter.create(body);
+    // Attach user ID
+    const newCoverLetter = await CoverLetter.create({
+      ...body,
+      userId: session.userId,
+    });
+
     return NextResponse.json({ success: true, data: newCoverLetter }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json(
